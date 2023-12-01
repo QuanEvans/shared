@@ -68,9 +68,9 @@ def main(args):
     homoflag = args.homoflag
 
     if 'PERL5LIB' in os.environ:
-        os.environ['PERL5LIB'] += ':/nfs/amino-home/zhengwei/lib/amino-modules/2019.11-5.16.3/lib/perl5'
+        os.environ['PERL5LIB'] += ':/nfs/amino-home/zhanglabs/amino-modules/2019.11-5.16.3/lib/perl5'
     else:
-        os.environ['PERL5LIB'] = '/nfs/amino-home/zhengwei/lib/amino-modules/2019.11-5.16.3/lib/perl5'
+        os.environ['PERL5LIB'] = '/nfs/amino-home/zhanglabs/amino-modules/2019.11-5.16.3/lib/perl5'
 
     libfile = 'PDBsearchresult_' + tag + '.dat'
     ECfile = 'ECsearchresult_' + tag + '.dat'
