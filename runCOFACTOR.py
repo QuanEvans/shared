@@ -119,9 +119,9 @@ def main(args):
             f.write(template)
 
         print('run COFACTOR\n')
-        subprocess.call(['chmod', 'a+x', jobname])
-        subprocess.call([jobname])
-        subprocess.call(['rm', '-rf', '/tmp/' + os.environ["USER"] + '/' + tag])
+        #subprocess.call(['chmod', 'a+x', jobname])
+        #subprocess.call([jobname])
+        #subprocess.call(['rm', '-rf', '/tmp/' + os.environ["USER"] + '/' + tag])
 
     print('rescore COFACTOR')
     subprocess.call(['cd', datadir])
@@ -145,7 +145,7 @@ def main(args):
 
     print('run metaCOFACTOR')
     subprocess.call(['cd', datadir])
-    subprocess.call([metaCOFACTOR, datadir, '-datadir=' + datadir])
+    subprocess.call([metaCOFACTOR, datadir])
 
 if __name__ == '__main__':
     args = create_parser()
