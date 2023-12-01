@@ -23,8 +23,6 @@ options:
         GO:0003674 ! molecular_function
         GO:0008150 ! biological_process
         GO:0005575 ! cellular_component
--datadir=dat
-    directory of data files
 '''
 
 import sys,os
@@ -159,12 +157,9 @@ def write_GOpred(combine_dict=dict(),Aspect='F',outfile="dist_GOfreqPPI_MF"):
 if __name__=="__main__":    
     excludeGO="GO:0005515,GO:0005488,GO:0003674,GO:0008150,GO:0005575"
     argv=[]
-    datadir = None
     for arg in sys.argv[1:]:
         if arg.startswith("-excludeGO="):
             excludeGO=arg[len("-excludeGO="):].upper()
-        elif arg.startswith('-datadir='):
-            datadir=arg[len('-datadir='):]
         elif arg.startswith('-'):
             sys.stderr.write("ERROR! Unknown option")
         else:
@@ -174,9 +169,6 @@ if __name__=="__main__":
         sys.stderr.write(docstring)
         exit()
 
-    # if data directory is specified, change to that directory
-    if datadir:
-        os.chdir(datadir)
     #### parse GO hierachy ####
     fp=open(wget(obo_url,show_url=True),'rU')
     obo_txt=fp.read()
