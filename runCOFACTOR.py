@@ -44,7 +44,7 @@ def getserver():
     return server
 
 def replace_template(template, datadir, tag, cofactor_tag,
-                     homoflag, libfile, ECfile, GOfile, BSfile1, BSfile2):
+                     homoflag, libfile, ECfile, GOfile, BSfile1, BSfile2, server=getserver()):
     """
     replace template with variables
     """
@@ -59,6 +59,7 @@ def replace_template(template, datadir, tag, cofactor_tag,
     template = re.sub(r'\!OUTPUT_GO\!', GOfile, template)
     template = re.sub(r'\!OUTPUT_BS\!', BSfile1, template)
     template = re.sub(r'\!OUTPUT_POCKET\!', BSfile2, template)
+    template = re.sub(r'\!SERVER\!', server, template)
     return template
 
 def runSequenceBasedFunctionPrediction(datadir, homoflag):
@@ -98,6 +99,7 @@ def main(args):
     CCfile = 'GOsearchresult_' + tag + '_CC.dat'
     BSfile1 = 'Bsites_' + tag + '.dat'
     BSfile2 = 'Bpockets_' + tag + '.dat'
+    server = getserver()
 
     #runSequenceBasedFunctionPrediction(datadir, homoflag)
 
@@ -112,7 +114,7 @@ def main(args):
         with open(COFACTORmod, 'r') as f:
             template = f.read()
         template = replace_template(template, datadir, tag, cofactor_tag,
-                                    homoflag, libfile, ECfile, GOfile, BSfile1, BSfile2)
+                                    homoflag, libfile, ECfile, GOfile, BSfile1, BSfile2, server)
         with open(jobname, 'w') as f:
             f.write(template)
 
