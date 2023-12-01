@@ -125,7 +125,8 @@ def main(args):
 
     print('rescore COFACTOR')
     subprocess.call(['cd', datadir])
-    subprocess.call([rescore_COFACTOR, GOfile])
+    subprocess.call([rescore_COFACTOR, GOfile, '-datadir=' + datadir])
+
 
     while True:
         if (os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_MF')) and
@@ -144,7 +145,7 @@ def main(args):
 
     print('run metaCOFACTOR')
     subprocess.call(['cd', datadir])
-    subprocess.call([metaCOFACTOR, '.'])
+    subprocess.call([metaCOFACTOR, datadir, '-datadir=' + datadir])
 
 if __name__ == '__main__':
     args = create_parser()
