@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import argparse
 import subprocess
@@ -19,7 +20,7 @@ def create_parser()->argparse.Namespace:
     parser = argparse.ArgumentParser(description='Run COFACTOR')
     parser.add_argument('datadir', type=str, help='data directory')
     parser.add_argument('tag', type=str, help='sequence tag (job id)')
-    parse.add_argument('homoflag', type=str, help='homology flag')
+    parser.add_argument('homoflag', type=str, help='homology flag')
     args = parser.parse_args()
     args.datadir = os.path.abspath(args.datadir)
     return args
@@ -50,7 +51,7 @@ def runSequenceBasedFunctionPrediction(datadir:str, homoflag:str):
     configfile = os.path.join(datadir, 'config.py')
     seqfile = os.path.join(datadir, 'seq.fasta')
     ss = os.path.basename(datadir) # sequence tag
-    outdir = os.dirname(datadir)
+    outdir = os.path.dirname(datadir)
     if not os.path.exists(seqfile):
         raise FileNotFoundError(f'{seqfile} does not exist')
     with open(configfile, 'w') as f:
@@ -68,9 +69,14 @@ def main(args:argparse.Namespace):
     datadir = args.datadir
     tag = args.tag
     homoflag = args.homoflag
-    COFACTORmod = COFACTORmod
     # set up environment
-    os.environ['PERL5LIB'] = os.environ['PERL5LIB'] + ':/nfs/amino-home/zhengwei/lib/amino-modules/2019.11-5.16.3/lib/perl5'
+    # Check if PERL5LIB is in the environment
+    if 'PERL5LIB' in os.environ:
+        # Append to it if it exists
+        os.environ['PERL5LIB'] += ':/nfs/amino-home/zhengwei/lib/amino-modules/2019.11-5.16.3/lib/perl5'
+    else:
+        # Set it if it doesn't exist
+        os.environ['PERL5LIB'] = '/nfs/amino-home/zhengwei/lib/amino-modules/2019.11-5.16.3/lib/perl5'
     # variables
     libfile:str = f'PDBsearchresult_{tag}.dat'
     ECfile:str = f'ECsearchresult_{tag}.dat'
@@ -126,7 +132,7 @@ def main(args:argparse.Namespace):
             os.path.exists(os.path.join(datadir, 'string_gwGOfreq_CC')):
             break
         qzy = subprocess.run(qstat, capture_output=True)
-        if re.search(r'GOF_'+tag+'_' or re.search(r'PIG_'+tag+'_', qzy):
+        if re.search(r'GOF_'+tag+'_', qzy) or re.search(r'PIG_'+tag+'_', qzy):
             time.sleep(300) # wait for 5 minutes
         else:
             print('ERROR! GOfreq or PPI2GO died. Force output generation\n')
