@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import re
 import time
+import commands
 
 # fixed variables related to current file path
 bindir = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +14,7 @@ runGOfreq = os.path.join(cofactor_bindir, 'GOfreq', 'run_GOfreq.py')
 runPPI2GO = os.path.join(cofactor_bindir, 'GOfreq', 'run_PPI2GO.py')
 COFACTORmod = os.path.join(cofactor_bindir, 'COFACTORmod')
 rescore_COFACTOR = os.path.join(cofactor_bindir, 'rescore_COFACTOR.py')
-metaCOFACTOR = os.path.join(cofactor_bindir, 'metaCOFACTOR.pl')
+metaCOFACTOR = os.path.join(cofactor_bindir, 'metaCOFACTOR.py')
 qstat = 'qstat -u ' + os.environ["USER"] + ' %j'
 
 def create_parser():
@@ -25,14 +26,31 @@ def create_parser():
     args.datadir = os.path.abspath(args.datadir)
     return args
 
-def replace_template(template, datadir, model, tag, cofactor_tag,
+def getserver():
+    server="S10"
+    #hostname = subprocess.run("hostname", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) #  use the pipe 
+#    print(hostname.stdout.decode())
+    #hostname=hostname.stdout.decode().strip('\n')
+    (o,hostname)=commands.getstatusoutput("hostname")
+    hostname=hostname.strip('\n').strip(' ')
+    if hostname.startswith("gl"):
+        server="GL"
+    elif hostname.startswith("lh"):
+        server="S10"
+    elif hostname.startswith("amino") or hostname.startswith("zhang"):
+        server="amino"
+    else:
+        server="unknow"
+    return server
+
+def replace_template(template, datadir, tag, cofactor_tag,
                      homoflag, libfile, ECfile, GOfile, BSfile1, BSfile2):
     """
     replace template with variables
     """
     template = re.sub(r'\!S\!', tag, template)
     template = re.sub(r'\!DATADIR\!', datadir, template)
-    template = re.sub(r'\!MODEL\!', model, template)
+    template = re.sub(r'\!MODEL\!', 'model_1.pdb', template)
     template = re.sub(r'\!TAG\!', cofactor_tag, template)
     template = re.sub(r'\!USER\!', os.environ['USER'], template)
     template = re.sub(r'\!RUN\!', homoflag, template)
@@ -81,7 +99,7 @@ def main(args):
     BSfile1 = 'Bsites_' + tag + '.dat'
     BSfile2 = 'Bpockets_' + tag + '.dat'
 
-    runSequenceBasedFunctionPrediction(datadir, homoflag)
+    #runSequenceBasedFunctionPrediction(datadir, homoflag)
 
     if not (os.path.exists(os.path.join(datadir, MFfile)) and
             os.path.exists(os.path.join(datadir, BPfile)) and
@@ -89,12 +107,11 @@ def main(args):
             os.path.exists(os.path.join(datadir, libfile)) and
             os.path.exists(os.path.join(datadir, ECfile)) and
             os.path.exists(os.path.join(datadir, 'BSITE_model1', BSfile1))):
-        model = os.path.join(datadir, 'model1.pdb')
         cofactor_tag = 'CFu_' + tag + '_' + homoflag
         jobname = os.path.join(datadir, cofactor_tag)
         with open(COFACTORmod, 'r') as f:
             template = f.read()
-        template = replace_template(template, datadir, model, tag, cofactor_tag,
+        template = replace_template(template, datadir, tag, cofactor_tag,
                                     homoflag, libfile, ECfile, GOfile, BSfile1, BSfile2)
         with open(jobname, 'w') as f:
             f.write(template)
