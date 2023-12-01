@@ -145,7 +145,7 @@ def parse_COFACTOR_GOsearchresult(GOsearchresult_file="GOsearchresult_.dat",
 if __name__=="__main__":
     excludeGO="GO:0005515,GO:0005488,GO:0003674,GO:0008150,GO:0005575"
     argv=[]
-    datadir = None
+    datadir = os.getcwd()
     for arg in sys.argv[1:]:
         if arg.startswith("-excludeGO="):
             excludeGO=arg[len("-excludeGO="):].upper()
@@ -159,11 +159,8 @@ if __name__=="__main__":
     if len(argv)!=1:
         sys.stderr.write(docstring)
         exit()
-
-    # if data directory is specified, change to that directory
-    if datadir:
-        os.chdir(datadir)
-    
+    GOsearchresult_dat = argv[0]
+    GOsearchresult_dat = os.path.join(datadir, GOsearchresult_dat)
     #### parse GO hierachy ####
     fp=open(wget(obo_url,show_url=True),'rU')
     obo_txt=fp.read()
@@ -171,7 +168,7 @@ if __name__=="__main__":
     obo_dict=obo2csv.parse_obo_txt(obo_txt)
 
     #### parse COFACTOR GO prediction result ####
-    GOsearchresult_dict=parse_COFACTOR_GOsearchresult(argv[0],
+    GOsearchresult_dict=parse_COFACTOR_GOsearchresult(GOsearchresult_dat,
         obo_dict,excludeGO)
 
     #### scoring ####
@@ -181,6 +178,7 @@ if __name__=="__main__":
     #for scoring in cscore_dict:
     for scoring in ["GOfreq"]:
         for Aspect in ["MF","BP","CC"]:
-            fp=open("COFACTOR_"+scoring+'_'+Aspect,'w')
+            result_file = os.path.join(datadir, "COFACTOR_"+scoring+'_'+Aspect)
+            fp=open(result_file,'w')
             fp.write(cscore_dict[scoring][Aspect[1]])
             fp.close()
