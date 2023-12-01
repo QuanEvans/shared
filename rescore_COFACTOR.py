@@ -159,8 +159,13 @@ if __name__=="__main__":
     if len(argv)!=1:
         sys.stderr.write(docstring)
         exit()
+
+    # change to the directory of data files
+    os.chdir(datadir)
+    
     GOsearchresult_dat = argv[0]
     GOsearchresult_dat = os.path.join(datadir, GOsearchresult_dat)
+    
     #### parse GO hierachy ####
     fp=open(wget(obo_url,show_url=True),'rU')
     obo_txt=fp.read()
