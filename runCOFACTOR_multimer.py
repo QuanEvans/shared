@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from Bio import PDB
 from Bio.SeqUtils import seq1
-import json, time
+import json, time, sys
 import os, commands
 import argparse
 from string import Template
