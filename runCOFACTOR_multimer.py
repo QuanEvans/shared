@@ -230,7 +230,6 @@ def run_cofactor_multimer(datadir, homoflag):
 
     for chain in cofactor_dirs:
         datadir = chain
-        os.mkdir(datadir)
         tag = os.path.basename(datadir)
         jobname = os.path.join(datadir, tag)
         tags_datadir_pairs.append((tag, datadir))
