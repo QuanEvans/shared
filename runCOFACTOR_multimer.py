@@ -6,7 +6,6 @@ import os, commands
 import argparse
 from string import Template
 import subprocess
-from string import Template
 
 COFACTOR_template=Template("""#!/bin/bash
 #SBATCH --nodes=1
@@ -28,7 +27,7 @@ run_cofactor_path = os.path.join(file_dir, 'runCOFACTOR.py')
 def getserver():
     server="S10"
     #hostname = subprocess.run("hostname", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) #  use the pipe 
-#    print(hostname.stdout.decode())
+    #print(hostname.stdout.decode())
     #hostname=hostname.stdout.decode().strip('\n')
     (o,hostname)=commands.getstatusoutput("hostname")
     hostname=hostname.strip('\n').strip(' ')
@@ -48,7 +47,7 @@ def submit_job(jobname,cmd,server):
     account='zhanglab'
     partition='batch'
     reservation=''
-    Qos=' -q '+jobqos
+    Qos=' -q '+"casp"
     if server == "S10":
         account='sigbio_project1'
         partition='sigbio'
