@@ -220,8 +220,8 @@ def run_cofactor_multimer(datadir, homoflag):
     tags_datadir_pairs = []
     for chain in cofactor_dirs:
         datadir = chain
-        jobname = os.path.join(datadir, 'cofactor.sh')
         tag = os.path.basename(datadir)
+        jobname = os.path.join(datadir, tag)
         tags_datadir_pairs.append((tag, datadir))
         cmd = 'python {} {} {}'.format(run_cofactor_path, chain, tag, homoflag)
         submit_job(jobname, cmd, getserver())
