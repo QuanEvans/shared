@@ -86,6 +86,10 @@ def main(args):
     tag = args.tag
     homoflag = args.homoflag
 
+    # write a start file
+    with open(os.path.join(datadir, 'start'), 'w') as f:
+        f.write('start\n')
+
     if 'PERL5LIB' in os.environ:
         os.environ['PERL5LIB'] += ':/nfs/amino-home/zhanglabs/amino-modules/2019.11-5.16.3/lib/perl5'
     else:
@@ -101,7 +105,7 @@ def main(args):
     BSfile2 = 'Bpockets_' + tag + '.dat'
     server = getserver()
 
-    #runSequenceBasedFunctionPrediction(datadir, homoflag)
+    runSequenceBasedFunctionPrediction(datadir, homoflag)
 
     if not (os.path.exists(os.path.join(datadir, MFfile)) and
             os.path.exists(os.path.join(datadir, BPfile)) and
@@ -119,9 +123,9 @@ def main(args):
             f.write(template)
 
         print('run COFACTOR\n')
-        #subprocess.call(['chmod', 'a+x', jobname])
-        #subprocess.call([jobname])
-        #subprocess.call(['rm', '-rf', '/tmp/' + os.environ["USER"] + '/' + tag])
+        subprocess.call(['chmod', 'a+x', jobname])
+        subprocess.call([jobname])
+        subprocess.call(['rm', '-rf', '/tmp/' + os.environ["USER"] + '/' + tag])
 
     print('rescore COFACTOR')
     subprocess.call(['cd', datadir])
@@ -146,6 +150,10 @@ def main(args):
     print('run metaCOFACTOR')
     subprocess.call(['cd', datadir])
     subprocess.call([metaCOFACTOR, datadir])
+
+    # write a finish file
+    with open(os.path.join(datadir, 'finish'), 'w') as f:
+        f.write('finish\n')
 
 if __name__ == '__main__':
     args = create_parser()
