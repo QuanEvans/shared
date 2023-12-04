@@ -178,6 +178,30 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
                     f.write('{}\n'.format(sequence_from_pdb))
     return cofactor_dirs
 
+def check_compeleted(job_id, datadir, running_jobs):
+    """
+    Check if COFACTOR jobs are completed
+
+    Args:
+        job_id (str): job id of DMFold
+        datadir (str): output directory, also is datadir for DMFold
+        running_jobs (set): set of running jobs
+
+    Returns:
+        bool: True if all COFACTOR jobs are completed, False otherwise
+    """
+    start_file = os.path.join(datadir, 'start')
+    finish_file = os.path.join(datadir, 'finish')
+    if not os.path.exists(start_file):
+        return False
+    if job_id in running_jobs:
+        return False
+    if os.path.exists(finish_file):
+        return True
+    if os.path.exists(start_file) and not os.path.exists(finish_file) and job_id not in running_jobs:
+        print("job: {} died".format(job_id))
+        return True
+
 def run_cofactor_multimer(datadir, homoflag):
     """
     Run COFACTOR for a given job
@@ -193,13 +217,13 @@ def run_cofactor_multimer(datadir, homoflag):
     output_dir = datadir
     cofactor_dirs = split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, output_dir)
     # submit jobs
-    tags = []
+    tags_datadir_pairs = []
     for chain in cofactor_dirs:
         datadir = chain
         jobname = os.path.join(datadir, 'cofactor.sh')
         tag = os.path.basename(datadir)
-        tags.append(tag)
-        cmd = '{} {} {}'.format(run_cofactor_path, chain, tag, homoflag)
+        tags_datadir_pairs.append((tag, datadir))
+        cmd = 'python {} {} {}'.format(run_cofactor_path, chain, tag, homoflag)
         submit_job(jobname, cmd, getserver())
     
     # wait for jobs to finish
@@ -208,10 +232,12 @@ def run_cofactor_multimer(datadir, homoflag):
         stdout = showq()
         running_jobs = stdout.split('\n')
         running_jobs = set(running_jobs)
-        for tag in tags:
-            if tag in running_jobs:
+
+        for tag, datadir in tags_datadir_pairs:
+            if not check_compeleted(tag, datadir, running_jobs):
                 completed = False
                 break
+
         if completed:
             break
         else:
