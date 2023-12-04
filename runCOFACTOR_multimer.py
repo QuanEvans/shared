@@ -73,7 +73,6 @@ def submit_job(jobname,cmd,server):
 
     while True:
         submit_cmd = "sbatch "+Qos+' '+jobname
-        print(submit_cmd)
         p=subprocess.Popen("sbatch "+' '+Qos+' '+jobname,shell=True,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
@@ -167,8 +166,9 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
                 raise ValueError('chain id mismatch between pdb and fasta')
             else:
                 chain_output_dir = os.path.join(output_dir, '{}_{}_cofactor'.format(job_id, chain.id))
-                if not os.path.exists(chain_output_dir):
-                    os.makedirs(chain_output_dir)
+                if os.path.exists(chain_output_dir):
+                    shutil.rmtree(chain_output_dir)
+                os.makedirs(chain_output_dir)
                 cofactor_dirs.append(chain_output_dir)
                 # save pdb and fasta
                 io.set_structure(chain)
@@ -230,8 +230,6 @@ def run_cofactor_multimer(datadir, homoflag):
 
     for chain in cofactor_dirs:
         datadir = chain
-        if os.path.exists(datadir):
-            shutil.rmtree(datadir)
         os.mkdir(datadir)
         tag = os.path.basename(datadir)
         jobname = os.path.join(datadir, tag)
