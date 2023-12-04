@@ -112,7 +112,6 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
         list of cofacor dir
     """
 
-
     parser = PDB.PDBParser()
     io = PDB.PDBIO()
     # read chain_list
@@ -178,6 +177,8 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
                 with open(os.path.join(chain_output_dir, 'seq.fasta'), 'w') as f:
                     f.write('>{}\n'.format(sequence_name))
                     f.write('{}\n'.format(sequence_from_pdb))
+                print("split chain {} from multimer".format(chain.id))
+
     return cofactor_dirs
 
 def check_compeleted(job_id, datadir, running_jobs):
