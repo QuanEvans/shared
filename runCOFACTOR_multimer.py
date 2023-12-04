@@ -72,6 +72,8 @@ def submit_job(jobname,cmd,server):
     os.system("chmod 777 %s"%jobname)
 
     while True:
+        submit_cmd = "sbatch "+Qos+' '+jobname
+        print(submit_cmd)
         p=subprocess.Popen("sbatch "+' '+Qos+' '+jobname,shell=True,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
