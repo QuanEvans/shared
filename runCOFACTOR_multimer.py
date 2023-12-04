@@ -235,7 +235,7 @@ def run_cofactor_multimer(datadir, homoflag):
         tag = os.path.basename(datadir)
         jobname = os.path.join(datadir, tag)
         tags_datadir_pairs.append((tag, datadir))
-        cmd = 'python {} {} {}'.format(run_cofactor_path, chain, tag, homoflag)
+        cmd = python_path + ' ' + run_cofactor_path + ' ' + datadir + ' ' + tag + ' ' + homoflag
         submit_job(jobname, cmd, getserver())
     
     # wait for jobs to finish
