@@ -5,7 +5,7 @@ import os
 import argparse
 from string import Template
 
-def split_multimer(job_id:str, structure_pdb:str, seq_fasta:str, chain_id_map:str, chain_list:str, output_dir:str):
+def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, output_dir):
     """
     Split multimer into single chain and sequence file for a given job
     each chain and sequence file will be saved in a separate folder for running COFACTOR
