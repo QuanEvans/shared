@@ -5,7 +5,7 @@ import json, time, sys
 import os, commands
 import argparse
 from string import Template
-import subprocess
+import subprocess, shutil
 
 COFACTOR_template=Template("""#!/bin/bash
 #SBATCH --nodes=1
@@ -220,8 +220,17 @@ def run_cofactor_multimer(datadir, homoflag):
     cofactor_dirs = split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, output_dir)
     # submit jobs
     tags_datadir_pairs = []
+
+    # decice the python path
+    server = getserver()
+    python_path = '/nfs/amino-library/anaconda/bin/python'
+    if server == "S10" or server == "GL":
+        python_path = '/usr/bin/python2'
+
     for chain in cofactor_dirs:
         datadir = chain
+        if os.path.exists(datadir):
+            shutil.rmtree(datadir)
         tag = os.path.basename(datadir)
         jobname = os.path.join(datadir, tag)
         tags_datadir_pairs.append((tag, datadir))
