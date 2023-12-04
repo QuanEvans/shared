@@ -231,6 +231,7 @@ def run_cofactor_multimer(datadir, homoflag):
         datadir = chain
         if os.path.exists(datadir):
             shutil.rmtree(datadir)
+        os.mkdir(datadir)
         tag = os.path.basename(datadir)
         jobname = os.path.join(datadir, tag)
         tags_datadir_pairs.append((tag, datadir))
