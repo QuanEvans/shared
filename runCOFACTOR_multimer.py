@@ -1,9 +1,95 @@
+#!/usr/bin/env python
 from Bio import PDB
 from Bio.SeqUtils import seq1
-import json
-import os
+import json, time
+import os, commands
 import argparse
 from string import Template
+import subprocess
+from string import Template
+
+COFACTOR_template=Template("""#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH -t 10:00:00
+#SBATCH --mem=7gb
+#SBATCH --job-name="$TAG"
+#SBATCH --output="$JOBNAME.out"
+#SBATCH --error="$JOBNAME.err"
+#SBATCH --partition=$PARTITION
+#SBATCH --account=$ACCOUNT
+###SBATCH --qos urgent
+$CMD
+""")
+
+file_dir = os.path.dirname(os.path.abspath(__file__))
+run_cofactor_path = os.path.join(file_dir, 'runCOFACTOR.py')
+
+def getserver():
+    server="S10"
+    #hostname = subprocess.run("hostname", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) #  use the pipe 
+#    print(hostname.stdout.decode())
+    #hostname=hostname.stdout.decode().strip('\n')
+    (o,hostname)=commands.getstatusoutput("hostname")
+    hostname=hostname.strip('\n').strip(' ')
+    if hostname.startswith("gl"):
+        server="GL"
+    elif hostname.startswith("lh"):
+        server="S10"
+    elif hostname.startswith("amino") or hostname.startswith("zhang"):
+        server="amino"
+    else:
+        server="unknow"
+    return server
+
+def submit_job(jobname,cmd,server):
+    '''write command "cmd" to PBS script "jobname", submit the script'''
+
+    account='zhanglab'
+    partition='batch'
+    reservation=''
+    Qos=' -q '+jobqos
+    if server == "S10":
+        account='sigbio_project1'
+        partition='sigbio'
+        Qos=''
+
+    if server == "GL":
+        account='petefred1'
+        partition='standard'
+        Qos=''
+
+
+    fp=open(jobname,'w')
+    fp.write(COFACTOR_template.substitute(dict(
+        TAG=os.path.basename(jobname),
+        JOBNAME=os.path.abspath(jobname),
+        CMD=cmd,
+        ACCOUNT=account,
+        PARTITION=partition,
+    )))
+    fp.close()
+    #os.chmod(jobname, os.stat(jobname).st_mode|0111)
+    os.system("chmod 777 %s"%jobname)
+
+    while True:
+        p=subprocess.Popen(qsub+' '+Qos+' '+jobname,shell=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        if stdout.strip():
+            sys.stdout.write(jobname+" submitted\n")
+            break
+        else:
+            time.sleep(5) # something wrong with qsub
+    return stdout.strip() # return PBS job ID
+
+def showq():
+    '''return job queue status'''
+    cmd="squeue -o %j"
+    p=subprocess.Popen(cmd,shell=True,
+        stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    stdout,stderr=p.communicate()
+    return stdout
 
 def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, output_dir):
     """
@@ -20,6 +106,9 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
 
     Raises:
         ValueError: if sequence mismatch between pdb and fasta or chain id mismatch between pdb and fasta
+
+    Returns:
+        list of cofacor dir
     """
 
 
@@ -43,6 +132,8 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
         else:
             sequence_id_map[sequence].add(key)
 
+
+    cofactor_dirs = []
     # read structure
     structure = parser.get_structure('model1', structure_pdb)
     # split multimer
@@ -50,11 +141,6 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
     model = structure[0]
     for chain in model:
         if chain.id in non_redundant_chain_set:
-            chain_output_dir = os.path.join(output_dir, '{}_{}_cofactor'.format(job_id, chain.id))
-            if not os.path.exists(chain_output_dir):
-                os.makedirs(chain_output_dir)
-            io.set_structure(chain)
-            io.save(os.path.join(chain_output_dir, 'model_1.pdb'))
 
             sequence_from_pdb = ''
             for res in chain:
@@ -80,20 +166,64 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
                 print('job id: {}'.format(job_id))
                 raise ValueError('chain id mismatch between pdb and fasta')
             else:
+                chain_output_dir = os.path.join(output_dir, '{}_{}_cofactor'.format(job_id, chain.id))
+                if not os.path.exists(chain_output_dir):
+                    os.makedirs(chain_output_dir)
+                cofactor_dirs.append(chain_output_dir)
+                # save pdb and fasta
+                io.set_structure(chain)
+                io.save(os.path.join(chain_output_dir, 'model_1.pdb'))
+
                 with open(os.path.join(chain_output_dir, 'seq.fasta'), 'w') as f:
                     f.write('>{}\n'.format(sequence_name))
                     f.write('{}\n'.format(sequence_from_pdb))
+    return cofactor_dirs
 
+def run_cofactor_multimer(datadir, homoflag):
+    """
+    Run COFACTOR for a given job
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Split multimer into single chain and sequence file for a given job')
-    parser.add_argument('datadir', help='datadir for DMFold')
-    args = parser.parse_args()
-    datadir = os.path.abspath(args.datadir)
+    Args:
+        datadir (str): datadir for DMFold
+    """
     job_id = os.path.basename(datadir)
     structure_pdb = os.path.join(datadir, 'model_1.pdb')
     seq_fasta = os.path.join(datadir, 'seq.fasta')
     chain_id_map = os.path.join(datadir, 'AlphaFold2', 'seq', 'msas', 'chain_id_map.json')
     chain_list = os.path.join(datadir, 'chain.list')
     output_dir = datadir
-    split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, output_dir)
+    cofactor_dirs = split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, output_dir)
+    # submit jobs
+    tags = []
+    for chain in cofactor_dirs:
+        datadir = chain
+        jobname = os.path.join(datadir, 'cofactor.sh')
+        tag = os.path.basename(datadir)
+        tags.append(tag)
+        cmd = '{} {} {}'.format(run_cofactor_path, chain, tag, homoflag)
+        submit_job(jobname, cmd, getserver())
+    
+    # wait for jobs to finish
+    while True:
+        completed = True
+        stdout = showq()
+        running_jobs = stdout.split('\n')
+        running_jobs = set(running_jobs)
+        for tag in tags:
+            if tag in running_jobs:
+                completed = False
+                break
+        if completed:
+            break
+        else:
+            time.sleep(300)
+        
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Split multimer into single chain and sequence file for a given job')
+    parser.add_argument('datadir', help='datadir for DMFold')
+    parser.add_argument('homoflag', help='homology flag')
+    args = parser.parse_args()
+    datadir = os.path.abspath(args.datadir)
+    homoflag = args.homoflag
+    run_cofactor_multimer(datadir, homoflag)
