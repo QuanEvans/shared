@@ -22,6 +22,7 @@ def create_parser():
     parser.add_argument('datadir', type=str, help='data directory')
     parser.add_argument('tag', type=str, help='sequence tag (job id)')
     parser.add_argument('homoflag', type=str, help='homology flag')
+    parser.add_argument('-s', '--structure', action='store_true', help='only run structure-based function prediction')
     args = parser.parse_args()
     args.datadir = os.path.abspath(args.datadir)
     return args
@@ -85,6 +86,7 @@ def main(args):
     datadir = args.datadir
     tag = args.tag
     homoflag = args.homoflag
+    structure_only = args.structure
 
     # write a start file
     with open(os.path.join(datadir, 'start'), 'w') as f:
@@ -105,7 +107,8 @@ def main(args):
     BSfile2 = 'Bpockets_' + tag + '.dat'
     server = getserver()
 
-    runSequenceBasedFunctionPrediction(datadir, homoflag)
+    if not structure_only: # run sequence based function prediction
+        runSequenceBasedFunctionPrediction(datadir, homoflag)
 
     if not (os.path.exists(os.path.join(datadir, MFfile)) and
             os.path.exists(os.path.join(datadir, BPfile)) and
@@ -127,33 +130,33 @@ def main(args):
         subprocess.call([jobname])
         subprocess.call(['rm', '-rf', '/tmp/' + os.environ["USER"] + '/' + tag])
 
-    print('rescore COFACTOR')
-    subprocess.call(['cd', datadir])
-    subprocess.call([rescore_COFACTOR, GOfile, '-datadir=' + datadir])
+    if not structure_only:
+        print('rescore COFACTOR')
+        subprocess.call(['cd', datadir])
+        subprocess.call([rescore_COFACTOR, GOfile, '-datadir=' + datadir])
 
+        while True:
+            if (os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_MF')) and
+                os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_BP')) and
+                os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_CC')) and
+                os.path.exists(os.path.join(datadir, 'string_gwGOfreq_MF')) and
+                os.path.exists(os.path.join(datadir, 'string_gwGOfreq_BP')) and
+                os.path.exists(os.path.join(datadir, 'string_gwGOfreq_CC'))):
+                break
+            qzy = subprocess.check_output(qstat, shell=True)
+            if re.search(r'GOF_' + tag + '_', qzy) or re.search(r'PIG_' + tag + '_', qzy):
+                time.sleep(300)
+            else:
+                print('ERROR! GOfreq or PPI2GO died. Force output generation\n')
+                break
 
-    while True:
-        if (os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_MF')) and
-            os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_BP')) and
-            os.path.exists(os.path.join(datadir, 'combine_gwGOfreq_CC')) and
-            os.path.exists(os.path.join(datadir, 'string_gwGOfreq_MF')) and
-            os.path.exists(os.path.join(datadir, 'string_gwGOfreq_BP')) and
-            os.path.exists(os.path.join(datadir, 'string_gwGOfreq_CC'))):
-            break
-        qzy = subprocess.check_output(qstat, shell=True)
-        if re.search(r'GOF_' + tag + '_', qzy) or re.search(r'PIG_' + tag + '_', qzy):
-            time.sleep(300)
-        else:
-            print('ERROR! GOfreq or PPI2GO died. Force output generation\n')
-            break
+        print('run metaCOFACTOR')
+        subprocess.call(['cd', datadir])
+        subprocess.call([metaCOFACTOR, datadir])
 
-    print('run metaCOFACTOR')
-    subprocess.call(['cd', datadir])
-    subprocess.call([metaCOFACTOR, datadir])
-
-    # write a finish file
-    with open(os.path.join(datadir, 'finish'), 'w') as f:
-        f.write('finish\n')
+        # write a finish file
+        with open(os.path.join(datadir, 'finish'), 'w') as f:
+            f.write('finish\n')
 
 if __name__ == '__main__':
     args = create_parser()
