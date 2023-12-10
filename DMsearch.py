@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 #!/nfs/amino-home/liyangum/anaconda3/bin/python3
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 import os, subprocess
 
 import argparse
@@ -15,7 +18,10 @@ import re
 import pickle
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 DMsearch_docstring= """
 
     DMsearch: A tool for protein complex analysis using Foldseek and MMalign.
@@ -179,9 +185,13 @@ def create_parser()->argparse.ArgumentParser:
     parser_search.add_argument('output_dir', help='output directory')
 
     parser_search.add_argument('--min_tmscore', help='minimum TM-score to consider a hit', default=0.3, type=float)
+<<<<<<< HEAD
 
     parser_search.add_argument('--threads', help='number of threads', default=1, type=int)
 
+=======
+    parser_search.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
+>>>>>>> parent of 623b2ee (upadte)
     parser_search.add_argument('-v', '--verbose', help='verbose', action='store_true')
 
     parser_search.add_argument('--min_hits', help='minimum number of hits to consider second iteration of search', default=100, type=int)
@@ -189,9 +199,13 @@ def create_parser()->argparse.ArgumentParser:
     parser_search.add_argument('-c', '--continue_search', help='continuous mode', action='store_true')
 
     parser_search.add_argument('-exclude', '--exclude_list', help='list of PDB IDs to exclude from search', default=None, type=str)
+<<<<<<< HEAD
 
     parser_search.add_argument('--mmalign', help='mmalign executable path', default=os.path.join(file_dir,'DeepMSAFold','MMalign'))
 
+=======
+    parser_search.add_argument('--mmalign', help='mmalign executable path', default='MMalign')
+>>>>>>> parent of 623b2ee (upadte)
     parser_search.add_argument('--foldseek', help='foldseek executable path', default=os.path.join(file_dir,'DeepMSAFold','foldseek'))
 
 
@@ -203,9 +217,13 @@ def create_parser()->argparse.ArgumentParser:
     parser_createdb.add_argument('input_dir', help='input directory')
 
     parser_createdb.add_argument('sequenceDB', help='output sequenceDB')
+<<<<<<< HEAD
 
     parser_createdb.add_argument('--threads', help='number of threads', default=1, type=int)
 
+=======
+    parser_createdb.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
+>>>>>>> parent of 623b2ee (upadte)
     parser_createdb.add_argument('-v', '--verbose', help='verbose', action='store_true')
 
     parser_createdb.add_argument('--foldseek', help='foldseek executable path', default='foldseek')
@@ -1255,5 +1273,13 @@ def main(args:argparse.Namespace):
 if __name__ == '__main__':
 
     args = create_parser()
+<<<<<<< HEAD
 
     main(args)
+=======
+    main(args)
+
+
+
+
+>>>>>>> parent of 623b2ee (upadte)

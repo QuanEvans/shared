@@ -3,5 +3,5 @@
 files=`find . -type f -exec file {} \; | grep CRLF | cut -d: -f1`
 
 for file in $files; do
-    sed -i -e's/\r/\n/g' $file
+    dos2unix $file
 done

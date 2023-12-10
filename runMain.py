@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 import os,sys
+<<<<<<< HEAD
 
+=======
+import subprocess
+>>>>>>> parent of 623b2ee (upadte)
 import time
 
 import commands
@@ -17,9 +21,19 @@ runMain.py jobID
     run the full build_MSA pipeline:
 
 '''
+<<<<<<< HEAD
 
 
 
+=======
+"""
+new:
+    need add argv for prefunc
+    need add argv for homoflag real or benchmark
+"""
+prefunc = 'false'
+homoflag = 'real'
+>>>>>>> parent of 623b2ee (upadte)
 ####  parse command line argument ####
 
 if len(sys.argv)<2:
@@ -30,8 +44,11 @@ if len(sys.argv)<2:
 
 s=sys.argv[1] # protein name (jobID)
 
+<<<<<<< HEAD
 homoflag='real' # real or benchmark
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 Q="casp"
 
 heteromer_maxP=10
@@ -77,7 +94,11 @@ if not os.path.isfile("seq.fasta") or not os.path.getsize("seq.fasta"):
 
 
 HHLIB=bindir+"/DeepMSAFold/DeepMSA2/bin/DeepMSA"
+<<<<<<< HEAD
 
+=======
+runCOFACTOR=os.path.join(bindir,"runCOFACTOR.py")
+>>>>>>> parent of 623b2ee (upadte)
 AF2Mdir=os.path.join(bindir,"DeepMSAFold/alphafold_multi_2.2.0")
 
 protein_type="multimer"
@@ -93,6 +114,7 @@ lines=config_file.readlines()
 config_file.close()
 
 msa_gene_flag=lines[0].strip('\n')
+<<<<<<< HEAD
 
 # DMFOLD2
 
@@ -101,6 +123,8 @@ prefunc_flag=lines[1].strip('\n')
 prefunc_flag = (prefunc_flag.lower() == "true")
 
 # DMFOLD2
+=======
+>>>>>>> parent of 623b2ee (upadte)
 
 
 
@@ -334,6 +358,7 @@ for i in range(1,6):
 
     os.system("cp %s %s"%(os.path.join(datadir,"Final_ALL_AF2MODELS/model_"+str(i)+".pdb"),datadir))
 
+<<<<<<< HEAD
 
 
 # DMFOLD2
@@ -412,6 +437,16 @@ elif protein_type == "monomer":
 
     cofactor_dir = os.path.join(datadir, '{}_{}_cofactor'.format(s, chian_id))
 
+=======
+
+# new for function prediction
+if protein_type == "multimer":
+    pass
+else:
+    # monomer
+    # set up directory
+    cofactor_dir = os.path.join(datadir, f"{s}-cofactor")
+>>>>>>> parent of 623b2ee (upadte)
     subprocess.run(["mkdir", '-p', cofactor_dir])
 
     # cp seq.fasta
@@ -427,6 +462,7 @@ elif protein_type == "monomer":
     # start function prediction
 
     # runCOFACTOR.py data_dir tag homoflag
+<<<<<<< HEAD
 
     cmd = [runCOFACTOR, cofactor_dir, s, homoflag]
 
@@ -437,6 +473,11 @@ elif protein_type == "monomer":
     subprocess.run(cmd)
 
 # DMFOLD2
+=======
+    subprocess.run([runCOFACTOR, cofactor_dir, s, homoflag])
+
+
+>>>>>>> parent of 623b2ee (upadte)
 
 
 
