@@ -1,10 +1,9 @@
-#!/usr/bin/env python
+#!/nfs/amino-home/liyangum/anaconda3/bin/python3
 import os
 import argparse
 import subprocess
 import re
 import time
-import commands
 
 # fixed variables related to current file path
 bindir = os.path.dirname(os.path.abspath(__file__))
@@ -27,12 +26,17 @@ def create_parser():
     args.datadir = os.path.abspath(args.datadir)
     return args
 
+def get_hostname():
+    process = subprocess.Popen(["hostname"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+    return process.returncode, stdout.strip()
+
 def getserver():
     server="S10"
     #hostname = subprocess.run("hostname", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) #  use the pipe 
 #    print(hostname.stdout.decode())
     #hostname=hostname.stdout.decode().strip('\n')
-    (o,hostname)=commands.getstatusoutput("hostname")
+    return_code, hostname = get_hostname()
     hostname=hostname.strip('\n').strip(' ')
     if hostname.startswith("gl"):
         server="GL"

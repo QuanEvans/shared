@@ -1,3 +1,4 @@
+#!/nfs/amino-home/liyangum/anaconda3/bin/python3
 import os, subprocess
 import argparse
 from collections import defaultdict
@@ -5,7 +6,6 @@ import multiprocessing as mp
 import shutil
 import re
 import pickle
-
 
 DMsearch_docstring= """
     DMsearch: A tool for protein complex analysis using Foldseek and MMalign.
@@ -89,19 +89,19 @@ def create_parser()->argparse.ArgumentParser:
     parser_search.add_argument('sequenceDB', help='databases to search')
     parser_search.add_argument('output_dir', help='output directory')
     parser_search.add_argument('--min_tmscore', help='minimum TM-score to consider a hit', default=0.3, type=float)
-    parser_search.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
+    parser_search.add_argument('--threads', help='number of threads', default=1, type=int)
     parser_search.add_argument('-v', '--verbose', help='verbose', action='store_true')
     parser_search.add_argument('--min_hits', help='minimum number of hits to consider second iteration of search', default=100, type=int)
     parser_search.add_argument('-c', '--continue_search', help='continuous mode', action='store_true')
     parser_search.add_argument('-exclude', '--exclude_list', help='list of PDB IDs to exclude from search', default=None, type=str)
-    parser_search.add_argument('--mmalign', help='mmalign executable path', default='MMalign')
+    parser_search.add_argument('--mmalign', help='mmalign executable path', default=os.path.join(file_dir,'DeepMSAFold','MMalign'))
     parser_search.add_argument('--foldseek', help='foldseek executable path', default=os.path.join(file_dir,'DeepMSAFold','foldseek'))
 
     # create db command
     parser_createdb = subparsers.add_parser('createdb', help='Create a Foldseek database from protein sequences or structures.', description=createdb_docstring, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser_createdb.add_argument('input_dir', help='input directory')
     parser_createdb.add_argument('sequenceDB', help='output sequenceDB')
-    parser_createdb.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
+    parser_createdb.add_argument('--threads', help='number of threads', default=1, type=int)
     parser_createdb.add_argument('-v', '--verbose', help='verbose', action='store_true')
     parser_createdb.add_argument('--foldseek', help='foldseek executable path', default='foldseek')
 
@@ -628,7 +628,3 @@ def main(args:argparse.Namespace):
 if __name__ == '__main__':
     args = create_parser()
     main(args)
-
-
-
-

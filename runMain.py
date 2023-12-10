@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os,sys
-import subprocess
 import time
 import commands
 from module.configure import getserver
@@ -9,19 +8,13 @@ docstring='''
 runMain.py jobID
     run the full build_MSA pipeline:
 '''
-"""
-new:
-    need add argv for prefunc
-    need add argv for homoflag real or benchmark
-"""
-prefunc = 'false'
-homoflag = 'real'
+
 ####  parse command line argument ####
 if len(sys.argv)<2:
     sys.stderr.write(docstring)
     exit()
 s=sys.argv[1] # protein name (jobID)
-
+homoflag='real' # real or benchmark
 Q="casp"
 heteromer_maxP=10
 server="S10" # S10, amino, GL
@@ -45,7 +38,6 @@ if not os.path.isfile("seq.fasta") or not os.path.getsize("seq.fasta"):
 
 
 HHLIB=bindir+"/DeepMSAFold/DeepMSA2/bin/DeepMSA"
-runCOFACTOR=os.path.join(bindir,"runCOFACTOR.py")
 AF2Mdir=os.path.join(bindir,"DeepMSAFold/alphafold_multi_2.2.0")
 protein_type="multimer"
 ###### check configure file
@@ -54,6 +46,10 @@ config_file=open(os.path.join(datadir,'config'),'r')
 lines=config_file.readlines()
 config_file.close()
 msa_gene_flag=lines[0].strip('\n')
+# DMFOLD2
+prefunc_flag=lines[1].strip('\n')
+prefunc_flag = (prefunc_flag.lower() == "true")
+# DMFOLD2
 
 ######### parse sequence
 seqfile=open(os.path.join(datadir,"seq.fasta"),"r")
@@ -171,14 +167,44 @@ else:
 for i in range(1,6):
     os.system("cp %s %s"%(os.path.join(datadir,"Final_ALL_AF2MODELS/model_"+str(i)+".pdb"),datadir))
 
+# DMFOLD2
+# path set up
+# for DMsearch
+DMsearch = os.path.join(bindir, "DMsearch.py")
+USalgin = os.path.join(bindir, 'DeepMSAFold', 'USalgin')
+DMfold_dir = os.path.dirname(bindir)
+libraray_dir = os.path.join(DMfold_dir, "library")
+foldseek_db = os.path.join(libraray_dir, 'pdb_foldseek', 'PDB100')
+target_dir = os.path.join(libraray_dirs, "pdb_mmcif_db")
 
-# new for function prediction
+# for function prediction
+runCOFACTOR = os.path.join(bindir, "runCOFACTOR.py")
+runCOFACTOR_multimer = os.path.join(bindir, "runCOFACTOR_multimer.py")
+# new for function prediction and DMsearch
 if protein_type == "multimer":
-    pass
-else:
-    # monomer
+
+    # predict function
+    if prefunc_flag:
+        # run COFACTOR_multimer.py data_dir homoflag
+        fun_cmd = [runCOFACTOR_multimer, datadir, homoflag]
+        subprocess.run(fun_cmd, check=True)
+    
+    # run DMsearch.py
+    input_model = os.path.join(datadir, "model_1.pdb")
     # set up directory
-    cofactor_dir = os.path.join(datadir, f"{s}-cofactor")
+    search_dir = os.path.join(datadir, "DMsearch")
+    subprocess.run(["mkdir", '-p', search_dir])
+    # search 
+    search_cmd = [DMsearch, 'search', input_model, target_dir, foldseek_db, search_dir]
+    subprocess.run(search_cmd, check=True)
+
+elif protein_type == "monomer":
+    # monomer
+    # read the 
+    chain_list = open(os.path.join(datadir, "chain.list"), "r").readlines()
+    chian_id = chain_list[0].strip().split("-")[-1]
+    # set up directory
+    cofactor_dir = os.path.join(datadir, '{}_{}_cofactor'.format(s, chian_id))
     subprocess.run(["mkdir", '-p', cofactor_dir])
     # cp seq.fasta
     subprocess.run(["cp", os.path.join(datadir, "seq.fasta"), cofactor_dir])
@@ -187,9 +213,11 @@ else:
     subprocess.run(["cp", os.path.join(datadir, "model_1.pdb"), model_for_cofactor])
     # start function prediction
     # runCOFACTOR.py data_dir tag homoflag
-    subprocess.run([runCOFACTOR, cofactor_dir, s, homoflag])
-
-
+    cmd = [runCOFACTOR, cofactor_dir, s, homoflag]
+    if not prefunc_flag:
+        cmd.append("-s")
+    subprocess.run(cmd)
+# DMFOLD2
 
 #exit(1)
 #### [3] HTML webpage output ####
