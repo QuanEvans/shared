@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/nfs/amino-home/liyangum/anaconda3/bin/python3
 from Bio import PDB
 from Bio.SeqUtils import seq1
 import json, time, sys
-import os, commands
+import os
 import argparse
 from string import Template
 import subprocess, shutil
@@ -10,7 +10,7 @@ import subprocess, shutil
 COFACTOR_template=Template("""#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH -t 10:00:00
+#SBATCH -t 144:00:00
 #SBATCH --mem=7gb
 #SBATCH --job-name="$TAG"
 #SBATCH --output="$JOBNAME.out"
@@ -24,12 +24,17 @@ $CMD
 file_dir = os.path.dirname(os.path.abspath(__file__))
 run_cofactor_path = os.path.join(file_dir, 'runCOFACTOR.py')
 
+def get_hostname():
+    process = subprocess.Popen(["hostname"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+    return process.returncode, stdout.strip()
+
 def getserver():
     server="S10"
     #hostname = subprocess.run("hostname", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) #  use the pipe 
     #print(hostname.stdout.decode())
     #hostname=hostname.stdout.decode().strip('\n')
-    (o,hostname)=commands.getstatusoutput("hostname")
+    return_code, hostname = get_hostname()
     hostname=hostname.strip('\n').strip(' ')
     if hostname.startswith("gl"):
         server="GL"
@@ -224,7 +229,6 @@ def run_cofactor_multimer(datadir, homoflag):
 
     # decice the python path
     server = getserver()
-    python_path = '/nfs/amino-library/anaconda/bin/python'
     if server == "S10" or server == "GL":
         python_path = '/usr/bin/python2'
 
@@ -233,7 +237,7 @@ def run_cofactor_multimer(datadir, homoflag):
         tag = os.path.basename(datadir)
         jobname = os.path.join(datadir, tag)
         tags_datadir_pairs.append((tag, datadir))
-        cmd = python_path + ' ' + run_cofactor_path + ' ' + datadir + ' ' + tag + ' ' + homoflag
+        cmd = run_cofactor_path + ' ' + datadir + ' ' + tag + ' ' + homoflag
         submit_job(jobname, cmd, getserver())
     
     # wait for jobs to finish
