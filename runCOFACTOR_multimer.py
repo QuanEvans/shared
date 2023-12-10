@@ -175,9 +175,8 @@ def split_multimer(job_id, structure_pdb, seq_fasta, chain_id_map, chain_list, o
                 raise ValueError('chain id mismatch between pdb and fasta')
             else:
                 chain_output_dir = os.path.join(output_dir, '{}_{}_cofactor'.format(job_id, chain.id))
-                if os.path.exists(chain_output_dir):
-                    shutil.rmtree(chain_output_dir)
-                os.makedirs(chain_output_dir)
+                if not os.path.exists(chain_output_dir):
+                    os.mkdir(chain_output_dir)
                 cofactor_dirs.append(chain_output_dir)
                 # save pdb and fasta
                 io.set_structure(chain)
