@@ -78,6 +78,7 @@ def get_absolute_path(path:str)->str:
         return os.path.abspath(os.path.join(os.getcwd(), path))
     
 def create_parser()->argparse.ArgumentParser:
+    file_dir = os.path.dirname(os.path.realpath(__file__))
     parser = argparse.ArgumentParser(prog='DMsearch.py', description=DMsearch_docstring, formatter_class=argparse.RawDescriptionHelpFormatter)
     subparsers = parser.add_subparsers(dest='command', help='sub-command help')
 
@@ -94,7 +95,7 @@ def create_parser()->argparse.ArgumentParser:
     parser_search.add_argument('-c', '--continue_search', help='continuous mode', action='store_true')
     parser_search.add_argument('-exclude', '--exclude_list', help='list of PDB IDs to exclude from search', default=None, type=str)
     parser_search.add_argument('--mmalign', help='mmalign executable path', default='MMalign')
-    parser_search.add_argument('--foldseek', help='foldseek executable path', default='foldseek')
+    parser_search.add_argument('--foldseek', help='foldseek executable path', default=os.path.join(file_dir,'DeepMSAFold','foldseek'))
 
     # create db command
     parser_createdb = subparsers.add_parser('createdb', help='Create a Foldseek database from protein sequences or structures.', description=createdb_docstring, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -109,7 +110,7 @@ def create_parser()->argparse.ArgumentParser:
     parser_align.add_argument('query', help='query file')
     parser_align.add_argument('target', help='target file')
     parser_align.add_argument('output', help='output file')
-    parser_align.add_argument('--mmalign', help='mmalign executable path', default='MMalign')
+    parser_align.add_argument('--mmalign', help='mmalign executable path', default=os.path.join(file_dir,'DeepMSAFold','MMalign'))
     
     args = parser.parse_args()
 
