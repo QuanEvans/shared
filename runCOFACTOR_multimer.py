@@ -182,15 +182,23 @@ def showq():
 
     '''return job queue status'''
 
-    cmd="squeue -o %j"
+    cmd = "squeue -o %j"
 
-    p=subprocess.Popen(cmd,shell=True,
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
 
-    stdout,stderr=p.communicate()
 
-    return stdout
+
+    # Decode the bytes object to a string
+
+    stdout_decoded = stdout.decode('utf-8')
+
+    
+
+    return stdout_decoded
+
+
 
 
 
