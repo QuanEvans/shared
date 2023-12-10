@@ -2,7 +2,11 @@
 
 import os,sys
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+import subprocess
+>>>>>>> parent of 623b2ee (upadte)
 =======
 import subprocess
 >>>>>>> parent of 623b2ee (upadte)
@@ -12,6 +16,7 @@ import commands
 
 from module.configure import getserver
 
+<<<<<<< HEAD
 
 
 docstring='''
@@ -26,6 +31,12 @@ runMain.py jobID
 
 
 =======
+=======
+docstring='''
+runMain.py jobID
+    run the full build_MSA pipeline:
+'''
+>>>>>>> parent of 623b2ee (upadte)
 """
 new:
     need add argv for prefunc
@@ -33,6 +44,9 @@ new:
 """
 prefunc = 'false'
 homoflag = 'real'
+<<<<<<< HEAD
+>>>>>>> parent of 623b2ee (upadte)
+=======
 >>>>>>> parent of 623b2ee (upadte)
 ####  parse command line argument ####
 
@@ -45,8 +59,11 @@ if len(sys.argv)<2:
 s=sys.argv[1] # protein name (jobID)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 homoflag='real' # real or benchmark
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 =======
 >>>>>>> parent of 623b2ee (upadte)
 Q="casp"
@@ -95,7 +112,11 @@ if not os.path.isfile("seq.fasta") or not os.path.getsize("seq.fasta"):
 
 HHLIB=bindir+"/DeepMSAFold/DeepMSA2/bin/DeepMSA"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+runCOFACTOR=os.path.join(bindir,"runCOFACTOR.py")
+>>>>>>> parent of 623b2ee (upadte)
 =======
 runCOFACTOR=os.path.join(bindir,"runCOFACTOR.py")
 >>>>>>> parent of 623b2ee (upadte)
@@ -115,6 +136,7 @@ config_file.close()
 
 msa_gene_flag=lines[0].strip('\n')
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # DMFOLD2
 
@@ -127,6 +149,8 @@ prefunc_flag = (prefunc_flag.lower() == "true")
 >>>>>>> parent of 623b2ee (upadte)
 
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 
 ######### parse sequence
 
@@ -359,6 +383,7 @@ for i in range(1,6):
     os.system("cp %s %s"%(os.path.join(datadir,"Final_ALL_AF2MODELS/model_"+str(i)+".pdb"),datadir))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 # DMFOLD2
@@ -447,6 +472,16 @@ else:
     # set up directory
     cofactor_dir = os.path.join(datadir, f"{s}-cofactor")
 >>>>>>> parent of 623b2ee (upadte)
+=======
+
+# new for function prediction
+if protein_type == "multimer":
+    pass
+else:
+    # monomer
+    # set up directory
+    cofactor_dir = os.path.join(datadir, f"{s}-cofactor")
+>>>>>>> parent of 623b2ee (upadte)
     subprocess.run(["mkdir", '-p', cofactor_dir])
 
     # cp seq.fasta
@@ -462,6 +497,7 @@ else:
     # start function prediction
 
     # runCOFACTOR.py data_dir tag homoflag
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     cmd = [runCOFACTOR, cofactor_dir, s, homoflag]
@@ -480,6 +516,11 @@ else:
 >>>>>>> parent of 623b2ee (upadte)
 
 
+=======
+    subprocess.run([runCOFACTOR, cofactor_dir, s, homoflag])
+
+
+>>>>>>> parent of 623b2ee (upadte)
 
 #exit(1)
 

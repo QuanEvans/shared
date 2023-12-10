@@ -1,6 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #!/nfs/amino-home/liyangum/anaconda3/bin/python3
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 =======
 >>>>>>> parent of 623b2ee (upadte)
 import os, subprocess
@@ -19,7 +22,10 @@ import pickle
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 623b2ee (upadte)
 =======
 >>>>>>> parent of 623b2ee (upadte)
 DMsearch_docstring= """
@@ -186,9 +192,13 @@ def create_parser()->argparse.ArgumentParser:
 
     parser_search.add_argument('--min_tmscore', help='minimum TM-score to consider a hit', default=0.3, type=float)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     parser_search.add_argument('--threads', help='number of threads', default=1, type=int)
 
+=======
+    parser_search.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
+>>>>>>> parent of 623b2ee (upadte)
 =======
     parser_search.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
 >>>>>>> parent of 623b2ee (upadte)
@@ -200,9 +210,13 @@ def create_parser()->argparse.ArgumentParser:
 
     parser_search.add_argument('-exclude', '--exclude_list', help='list of PDB IDs to exclude from search', default=None, type=str)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     parser_search.add_argument('--mmalign', help='mmalign executable path', default=os.path.join(file_dir,'DeepMSAFold','MMalign'))
 
+=======
+    parser_search.add_argument('--mmalign', help='mmalign executable path', default='MMalign')
+>>>>>>> parent of 623b2ee (upadte)
 =======
     parser_search.add_argument('--mmalign', help='mmalign executable path', default='MMalign')
 >>>>>>> parent of 623b2ee (upadte)
@@ -218,9 +232,13 @@ def create_parser()->argparse.ArgumentParser:
 
     parser_createdb.add_argument('sequenceDB', help='output sequenceDB')
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     parser_createdb.add_argument('--threads', help='number of threads', default=1, type=int)
 
+=======
+    parser_createdb.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
+>>>>>>> parent of 623b2ee (upadte)
 =======
     parser_createdb.add_argument('--threads', help='number of threads', default=mp.cpu_count(), type=int)
 >>>>>>> parent of 623b2ee (upadte)
@@ -1274,12 +1292,18 @@ if __name__ == '__main__':
 
     args = create_parser()
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     main(args)
 =======
+=======
+>>>>>>> parent of 623b2ee (upadte)
     main(args)
 
 
 
 
+<<<<<<< HEAD
+>>>>>>> parent of 623b2ee (upadte)
+=======
 >>>>>>> parent of 623b2ee (upadte)
